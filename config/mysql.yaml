@@ -1,0 +1,14 @@
+mysql:
+  source: # 主数据库
+    driverName:   mysql
+    host:         127.0.0.1
+    port:         3306
+    database:     profstik
+    username:     root
+    password:     123456
+    charset:      utf8mb4
+
+config:
+  MaxOpenCons:     1000
+  MaxIdleCons:     20
+  ConnMaxLifetime: 60 * time.Minute
