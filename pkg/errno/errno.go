@@ -11,6 +11,8 @@ const (
 	ParamErrCode               = 10002
 	UserAlreadyExistErrCode    = 10003
 	AuthorizationFailedErrCode = 10004
+	RpcConnectErrCode          = 10005
+	UploadVideoErrCode         = 10006
 )
 
 var (
@@ -19,6 +21,8 @@ var (
 	ParamErr               = NewErrNo(ParamErrCode, "Wrong Parameter has been given")
 	UserAlreadyExistErr    = NewErrNo(UserAlreadyExistErrCode, "User already exists")
 	AuthorizationFailedErr = NewErrNo(AuthorizationFailedErrCode, "Authorization failed")
+	RpcConnectErr          = NewErrNo(RpcConnectErrCode, "Rpc Connect failed")
+	UploadVideoErr         = NewErrNo(UploadVideoErrCode, "Upload Video failed")
 )
 
 type ErrNo struct {
