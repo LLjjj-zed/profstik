@@ -1,0 +1,140 @@
+package main
+
+import (
+	"crypto/tls"
+	"fmt"
+	"github.com/132982317/profstik/cmd/api/webHandler"
+	"github.com/132982317/profstik/middleware"
+	"github.com/132982317/profstik/pkg/utils/viper"
+	z "github.com/132982317/profstik/pkg/utils/zap"
+	"github.com/cloudwego/hertz/pkg/app/server"
+	"github.com/cloudwego/hertz/pkg/common/config"
+	"github.com/cloudwego/hertz/pkg/network/standard"
+	"github.com/hertz-contrib/gzip"
+	"log"
+)
+
+var (
+	apiConfig     = viper.Init("api")
+	apiServerAddr = fmt.Sprintf("%s:%d", apiConfig.Viper.GetString("server.host"), apiConfig.Viper.GetInt("server.port"))
+	signingKey    = apiConfig.Viper.GetString("JWT.signingKey")
+	serverTLSKey  = apiConfig.Viper.GetString("Hertz.tls.keyFile")
+	serverTLSCert = apiConfig.Viper.GetString("Hertz.tls.certFile")
+)
+
+func registerGroup(hz *server.Hertz) {
+	douyin := hz.Group("/douyin")
+	{
+		user := douyin.Group("/user")
+		{
+			user.GET("/", webHandler.UserInfo)
+			user.POST("/register/", webHandler.Register)
+			user.POST("/login/", webHandler.Login)
+		}
+		message := douyin.Group("/message")
+		{
+			message.GET("/chat/", webHandler.MessageChat)
+			message.POST("/action/", webHandler.MessageAction)
+		}
+		relation := douyin.Group("/relation")
+		{
+			// 粉丝列表
+			relation.GET("/follower/list/", webHandler.FollowerList)
+			// 关注列表
+			relation.GET("/follow/list/", webHandler.FollowList)
+			// 朋友列表
+			relation.GET("/friend/list/", webHandler.FriendList)
+			relation.POST("/action/", webHandler.RelationAction)
+		}
+		publish := douyin.Group("/publish")
+		{
+			publish.GET("/list/", webHandler.PublishList)
+			publish.POST("/action/", webHandler.PublishAction)
+		}
+		douyin.GET("/feed", webHandler.Feed)
+		favorite := douyin.Group("/favorite")
+		{
+			favorite.POST("/action/", webHandler.FavoriteAction)
+			favorite.GET("/list/", webHandler.FavoriteList)
+		}
+		comment := douyin.Group("/comment")
+		{
+			comment.POST("/action/", webHandler.CommentAction)
+			comment.GET("/list/", webHandler.CommentList)
+		}
+	}
+}
+
+func InitHertz() *server.Hertz {
+	logger := z.InitLogger()
+
+	opts := []config.Option{server.WithHostPorts(apiServerAddr)}
+
+	// 网络库
+	hertzNet := standard.NewTransporter
+	//if apiConfig.Viper.GetBool("Hertz.useNetPoll") {
+	//	hertzNet = netpoll.NewTransporter
+	//}
+	opts = append(opts, server.WithTransport(hertzNet))
+
+	// TLS & Http2
+	// https://github.com/cloudwego/hertz-examples/blob/main/protocol/tls/main.go
+	tlsConfig := tls.Config{
+		MinVersion:       tls.VersionTLS12,
+		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},
+		CipherSuites: []uint16{
+			tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,
+			tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+		},
+	}
+	if apiConfig.Viper.GetBool("Hertz.tls.enable") {
+		if len(serverTLSKey) == 0 {
+			log.Fatal("not found tiktok_tls_key in configuration")
+		}
+		if len(serverTLSCert) == 0 {
+			log.Fatal("not found tiktok_tls_cert in configuration")
+		}
+
+		cert, err := tls.LoadX509KeyPair(serverTLSCert, serverTLSKey)
+		if err != nil {
+			logger.Errorln(err)
+		}
+		tlsConfig.Certificates = append(tlsConfig.Certificates, cert)
+		opts = append(opts, server.WithTLS(&tlsConfig))
+
+		if alpn := apiConfig.Viper.GetBool("Hertz.tls.ALPN"); alpn {
+			opts = append(opts, server.WithALPN(alpn))
+		}
+	} else if apiConfig.Viper.GetBool("Hertz.http2.enable") {
+		opts = append(opts, server.WithH2C(apiConfig.Viper.GetBool("Hertz.http2.enable")))
+	}
+
+	hz := server.Default(opts...)
+
+	hz.Use(
+		middleware.TokenAuthMiddleware(*middleware.NewJWT([]byte(signingKey)),
+			"/douyin/user/register/",
+			"/douyin/user/login/",
+			"/douyin/feed",
+			"/douyin/favorite/list/",
+			"/douyin/publish/list/",
+			"/douyin/comment/list/",
+			"/douyin/relation/follower/list/",
+			"/douyin/relation/follow/list/",
+		), // 用户鉴权中间件
+		middleware.TokenLimitMiddleware(), //限流中间件
+		middleware.AccessLog(),
+		gzip.Gzip(gzip.DefaultCompression),
+	)
+	return hz
+}
+
+func main() {
+	hz := InitHertz()
+
+	// add webHandler
+	registerGroup(hz)
+
+	hz.Spin()
+}

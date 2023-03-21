@@ -5,13 +5,17 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2" // 日志切割归档库
+	"sync"
 )
 
 // 从配置文件中获取日志的输出路径
 var (
-	config    = viper.Init("zap")                //初始化viper并导入设置
-	infoPath  = config.Viper.GetString("log")    //INFO&DEBUG&WARN级别的日志输出位置
-	errorPath = config.Viper.GetString("errorf") //ERROR和FATAL级别的日志输出位置
+	config     = viper.Init("zap")                //初始化viper并导入设置
+	infoPath   = config.Viper.GetString("log")    //INFO&DEBUG&WARN级别的日志输出位置
+	errorPath  = config.Viper.GetString("errorf") //ERROR和FATAL级别的日志输出位置
+	LoggerPool = sync.Pool{New: func() interface{} {
+		return InitLogger()
+	}}
 )
 
 // InitLogger 初始化zap日志库

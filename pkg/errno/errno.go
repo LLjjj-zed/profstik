@@ -3,6 +3,7 @@ package errno
 import (
 	"errors"
 	"fmt"
+	"log"
 )
 
 const (
@@ -11,6 +12,10 @@ const (
 	ParamErrCode               = 10002
 	UserAlreadyExistErrCode    = 10003
 	AuthorizationFailedErrCode = 10004
+	RpcConnectErrCode          = 10005
+	UploadVideoErrCode         = 10006
+	ErrDatabaseCode            = 10007
+	debug                      = false
 )
 
 var (
@@ -19,7 +24,17 @@ var (
 	ParamErr               = NewErrNo(ParamErrCode, "Wrong Parameter has been given")
 	UserAlreadyExistErr    = NewErrNo(UserAlreadyExistErrCode, "User already exists")
 	AuthorizationFailedErr = NewErrNo(AuthorizationFailedErrCode, "Authorization failed")
+	RpcConnectErr          = NewErrNo(RpcConnectErrCode, "Rpc Connect failed")
+	UploadVideoErr         = NewErrNo(UploadVideoErrCode, "Upload Video failed")
+	ErrDatabase            = NewErrNo(ErrDatabaseCode, "Database error")
 )
+
+func Dprintf(format string, args ...interface{}) {
+	if debug {
+		log.Printf(format, args...)
+	}
+	return
+}
 
 type ErrNo struct {
 	ErrCode int64
