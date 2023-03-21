@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/132982317/profstik/cmd/relation/service"
 	"github.com/132982317/profstik/kitex_gen/relation/relationservice"
 	"github.com/132982317/profstik/pkg/utils/viper"
 	"github.com/132982317/profstik/pkg/utils/zap"
@@ -32,7 +33,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	svr := relationservice.NewServer(new(RelationServiceImpl),
+	svr := relationservice.NewServer(new(service.RelationServiceImpl),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: serviceName}), // server name
 		server.WithMiddleware(middleware.CommonMiddleware),                               // middleware
 		server.WithMiddleware(middleware.ServerMiddleware),

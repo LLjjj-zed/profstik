@@ -34,6 +34,10 @@ func Feed(ctx context.Context, c *app.RequestContext) {
 	if err != nil {
 		response.FeedErr(c, errno.RpcConnectErr)
 	}
+	if feed.StatusCode == errno.ServiceErrCode {
+		response.FeedErr(c, errno.ServiceErr)
+		return
+	}
 	response.FeedOK(c, errno.Success, feed.VideoList, feed.NextTime)
 }
 
@@ -50,6 +54,10 @@ func PublishList(ctx context.Context, c *app.RequestContext) {
 	})
 	if err != nil {
 		response.PublishListErr(c, errno.RpcConnectErr)
+	}
+	if publishList.StatusCode == errno.ServiceErrCode {
+		response.PublishListErr(c, errno.ServiceErr)
+		return
 	}
 	response.PublishListOK(c, errno.Success, publishList.VideoList)
 }
@@ -81,13 +89,16 @@ func PublishAction(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	res, _ := rpc.PublishAction(ctx, &kitex.PublishActionRequest{
+	pubilsh, err := rpc.PublishAction(ctx, &kitex.PublishActionRequest{
 		Token: token,
 		Title: title,
 		Data:  buf.Bytes(),
 	})
-	if res.StatusCode == -1 {
+	if err != nil {
 		response.PublishErr(c, errno.RpcConnectErr)
+	}
+	if pubilsh.StatusCode == errno.ServiceErrCode {
+		response.PublishErr(c, errno.ServiceErr)
 		return
 	}
 	response.PublishOk(c, errno.Success)

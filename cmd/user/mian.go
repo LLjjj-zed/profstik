@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/132982317/profstik/cmd/user/service"
 	"github.com/132982317/profstik/kitex_gen/user/userservice"
 	"github.com/132982317/profstik/pkg/utils/viper"
 	"github.com/132982317/profstik/pkg/utils/zap"
@@ -32,7 +33,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	svr := userservice.NewServer(new(UserServiceImpl),
+	svr := userservice.NewServer(new(service.UserServiceImpl),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: serviceName}), // server name
 		server.WithMiddleware(middleware.CommonMiddleware),                               // middleware
 		server.WithMiddleware(middleware.ServerMiddleware),

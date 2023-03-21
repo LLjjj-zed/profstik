@@ -47,6 +47,10 @@ func CommentAction(ctx context.Context, c *app.RequestContext) {
 		response.CommentErr(c, errno.RpcConnectErr)
 		return
 	}
+	if comment.StatusCode == errno.ServiceErrCode {
+		response.CommentErr(c, errno.ServiceErr)
+		return
+	}
 	response.CommentOk(c, errno.Success, comment.Comment)
 }
 
@@ -63,6 +67,10 @@ func CommentList(ctx context.Context, c *app.RequestContext) {
 	})
 	if err != nil {
 		response.CommentListErr(c, errno.RpcConnectErr)
+		return
+	}
+	if commentList.StatusCode == errno.ServiceErrCode {
+		response.CommentListErr(c, errno.ServiceErr)
 		return
 	}
 	response.CommentListOk(c, errno.Success, commentList.CommentList)

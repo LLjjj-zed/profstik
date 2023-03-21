@@ -3,6 +3,7 @@ package errno
 import (
 	"errors"
 	"fmt"
+	"log"
 )
 
 const (
@@ -13,6 +14,8 @@ const (
 	AuthorizationFailedErrCode = 10004
 	RpcConnectErrCode          = 10005
 	UploadVideoErrCode         = 10006
+	ErrDatabaseCode            = 10007
+	debug                      = false
 )
 
 var (
@@ -23,7 +26,15 @@ var (
 	AuthorizationFailedErr = NewErrNo(AuthorizationFailedErrCode, "Authorization failed")
 	RpcConnectErr          = NewErrNo(RpcConnectErrCode, "Rpc Connect failed")
 	UploadVideoErr         = NewErrNo(UploadVideoErrCode, "Upload Video failed")
+	ErrDatabase            = NewErrNo(ErrDatabaseCode, "Database error")
 )
+
+func Dprintf(format string, args ...interface{}) {
+	if debug {
+		log.Printf(format, args...)
+	}
+	return
+}
 
 type ErrNo struct {
 	ErrCode int64

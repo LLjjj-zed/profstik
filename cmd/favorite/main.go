@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/132982317/profstik/cmd/favorite/service"
 	"github.com/132982317/profstik/kitex_gen/favorite/favoriteservice"
 	"github.com/132982317/profstik/pkg/utils/viper"
 	"github.com/132982317/profstik/pkg/utils/zap"
@@ -32,7 +33,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	svr := favoriteservice.NewServer(new(FavoriteServiceImpl),
+	svr := favoriteservice.NewServer(new(service.FavoriteServiceImpl),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: serviceName}), // server name
 		server.WithMiddleware(middleware.CommonMiddleware),                               // middleware
 		server.WithMiddleware(middleware.ServerMiddleware),

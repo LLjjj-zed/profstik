@@ -26,6 +26,10 @@ func FriendList(ctx context.Context, c *app.RequestContext) {
 		response.FriendListErr(c, errno.RpcConnectErr)
 		return
 	}
+	if relationFriendList.StatusCode == errno.ServiceErrCode {
+		response.FriendListErr(c, errno.ServiceErr)
+		return
+	}
 	response.FriendListOk(c, errno.Success, relationFriendList.UserList)
 }
 
@@ -45,6 +49,10 @@ func FollowerList(ctx context.Context, c *app.RequestContext) {
 		response.FollowerListErr(c, errno.RpcConnectErr)
 		return
 	}
+	if relationFollowerList.StatusCode == errno.ServiceErrCode {
+		response.FollowerListErr(c, errno.ServiceErr)
+		return
+	}
 	response.FollowerListOk(c, errno.Success, relationFollowerList.UserList)
 }
 
@@ -61,6 +69,10 @@ func FollowList(ctx context.Context, c *app.RequestContext) {
 	})
 	if err != nil {
 		response.FollowListErr(c, errno.RpcConnectErr)
+		return
+	}
+	if relationFollowList.StatusCode == errno.ServiceErrCode {
+		response.FollowListErr(c, errno.ServiceErr)
 		return
 	}
 	response.FollowListOk(c, errno.Success, relationFollowList.UserList)
@@ -83,13 +95,17 @@ func RelationAction(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	_, err = rpc.RelationAction(ctx, &kitex.RelationActionRequest{
+	relation, err := rpc.RelationAction(ctx, &kitex.RelationActionRequest{
 		Token:      token,
 		ToUserId:   tid,
 		ActionType: int32(actionType),
 	})
 	if err != nil {
 		response.RelationErr(c, errno.RpcConnectErr)
+		return
+	}
+	if relation.StatusCode == errno.ServiceErrCode {
+		response.RelationErr(c, errno.ServiceErr)
 		return
 	}
 	response.RelationOk(c, errno.Success)

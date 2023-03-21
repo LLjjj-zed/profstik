@@ -23,13 +23,17 @@ func FavoriteAction(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	_, err = rpc.FavoriteAction(ctx, &kitex.FavoriteActionRequest{
+	favorite, err := rpc.FavoriteAction(ctx, &kitex.FavoriteActionRequest{
 		Token:      token,
 		VideoId:    vid,
 		ActionType: int32(actionType),
 	})
 	if err != nil {
 		response.FavoriteListErr(c, errno.RpcConnectErr)
+		return
+	}
+	if favorite.StatusCode == errno.ServiceErrCode {
+		response.FavoriteListErr(c, errno.ServiceErr)
 		return
 	}
 	response.FavoriteOk(c, errno.Success)
@@ -49,6 +53,10 @@ func FavoriteList(ctx context.Context, c *app.RequestContext) {
 	})
 	if err != nil {
 		response.FavoriteListErr(c, errno.RpcConnectErr)
+		return
+	}
+	if favoriteList.StatusCode == errno.ServiceErrCode {
+		response.FavoriteListErr(c, errno.ServiceErr)
 		return
 	}
 	response.FavoriteListOk(c, errno.Success, favoriteList.VideoList)

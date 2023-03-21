@@ -31,6 +31,14 @@ func Register(ctx context.Context, c *app.RequestContext) {
 		response.RegisterErr(c, errno.RpcConnectErr)
 		return
 	}
+	if register.StatusCode == errno.UserAlreadyExistErrCode {
+		response.RegisterErr(c, errno.UserAlreadyExistErr)
+		return
+	}
+	if register.StatusCode == errno.ServiceErrCode {
+		response.RegisterErr(c, errno.ServiceErr)
+		return
+	}
 	response.RegisterOK(c, errno.Success, register.UserId, register.Token)
 }
 
@@ -55,6 +63,10 @@ func Login(ctx context.Context, c *app.RequestContext) {
 		response.LoginErr(c, errno.RpcConnectErr)
 		return
 	}
+	if login.StatusCode == errno.ServiceErrCode {
+		response.LoginErr(c, errno.ServiceErr)
+		return
+	}
 	response.LoginOK(c, errno.Success, login.UserId, login.Token)
 }
 
@@ -74,6 +86,10 @@ func UserInfo(ctx context.Context, c *app.RequestContext) {
 	})
 	if err != nil {
 		response.UserInfoErr(c, errno.RpcConnectErr)
+		return
+	}
+	if info.StatusCode == errno.ServiceErrCode {
+		response.UserInfoErr(c, errno.ServiceErr)
 		return
 	}
 	response.UserInfoOK(c, errno.Success, info.User)

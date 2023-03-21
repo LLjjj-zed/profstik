@@ -27,6 +27,10 @@ func MessageChat(ctx context.Context, c *app.RequestContext) {
 		response.MessageChatErr(c, errno.RpcConnectErr)
 		return
 	}
+	if messageChat.StatusCode == errno.ServiceErrCode {
+		response.MessageChatErr(c, errno.ServiceErr)
+		return
+	}
 	response.MessageChatOk(c, errno.Success, messageChat.MessageList)
 }
 
@@ -54,7 +58,7 @@ func MessageAction(ctx context.Context, c *app.RequestContext) {
 	}
 
 	// 调用rpc
-	_, err = rpc.MessageAction(ctx, &kitex.MessageActionRequest{
+	message, err := rpc.MessageAction(ctx, &kitex.MessageActionRequest{
 		Token:      token,
 		ToUserId:   toUserID,
 		ActionType: int32(actionType),
@@ -62,6 +66,10 @@ func MessageAction(ctx context.Context, c *app.RequestContext) {
 	})
 	if err != nil {
 		response.MessageErr(c, errno.RpcConnectErr)
+		return
+	}
+	if message.StatusCode == errno.ServiceErrCode {
+		response.MessageErr(c, errno.ServiceErr)
 		return
 	}
 	response.MessageOk(c, errno.Success)

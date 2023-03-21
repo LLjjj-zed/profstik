@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/132982317/profstik/cmd/video/service"
 	"github.com/132982317/profstik/kitex_gen/video/videoservice"
 	"github.com/132982317/profstik/pkg/utils/viper"
 	"github.com/132982317/profstik/pkg/utils/zap"
@@ -32,7 +33,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	svr := videoservice.NewServer(new(VideoServiceImpl),
+	svr := videoservice.NewServer(new(service.VideoServiceImpl),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: serviceName}), // server name
 		server.WithMiddleware(middleware.CommonMiddleware),                               // middleware
 		server.WithMiddleware(middleware.ServerMiddleware),

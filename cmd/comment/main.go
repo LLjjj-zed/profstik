@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/132982317/profstik/cmd/comment/service"
 	"github.com/132982317/profstik/kitex_gen/comment/commentservice"
 	"github.com/132982317/profstik/pkg/utils/viper"
 	"github.com/132982317/profstik/pkg/utils/zap"
@@ -32,7 +33,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	svr := commentservice.NewServer(new(CommentServiceImpl),
+	svr := commentservice.NewServer(new(service.CommentServiceImpl),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: serviceName}), // server name
 		server.WithMiddleware(middleware.CommonMiddleware),                               // middleware
 		server.WithMiddleware(middleware.ServerMiddleware),
