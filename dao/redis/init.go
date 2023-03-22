@@ -16,7 +16,7 @@ import (
 const ExpireTime = 6 * time.Second
 
 var (
-	config        = viper.Init("db")
+	config        = viper.Init("redis")
 	zapLogger     = zap.InitLogger()
 	redisOnce     sync.Once
 	redisHelper   *RedisHelper
