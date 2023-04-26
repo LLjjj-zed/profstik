@@ -33,7 +33,7 @@ func (v *VideoServiceImpl) Feed(ctx context.Context, req *video.FeedRequest) (re
 			resp = &video.FeedResponse{
 				StatusCode: errno.AuthorizationFailedErrCode,
 			}
-			return
+			return nil, err
 		}
 		userID = claims.Id
 	}
@@ -44,7 +44,7 @@ func (v *VideoServiceImpl) Feed(ctx context.Context, req *video.FeedRequest) (re
 		resp = &video.FeedResponse{
 			StatusCode: errno.ServiceErrCode,
 		}
-		return
+		return nil, err
 	}
 	videoList := make([]*video.Video, 0)
 	for _, r := range videos {
@@ -59,7 +59,7 @@ func (v *VideoServiceImpl) Feed(ctx context.Context, req *video.FeedRequest) (re
 			resp = &video.FeedResponse{
 				StatusCode: errno.ServiceErrCode,
 			}
-			return
+			return nil, err
 		}
 		favorite, err := mysql.GetFavoriteVideoRelationByUserVideoID(ctx, userID, int64(r.ID))
 		if err != nil {
@@ -67,7 +67,7 @@ func (v *VideoServiceImpl) Feed(ctx context.Context, req *video.FeedRequest) (re
 			resp = &video.FeedResponse{
 				StatusCode: errno.ServiceErrCode,
 			}
-			return
+			return nil, err
 		}
 		playUrl, err := minio.GetFileTemporaryURL(minio.VideoBucketName, r.PlayUrl)
 		if err != nil {
@@ -75,7 +75,7 @@ func (v *VideoServiceImpl) Feed(ctx context.Context, req *video.FeedRequest) (re
 			resp = &video.FeedResponse{
 				StatusCode: errno.ServiceErrCode,
 			}
-			return
+			return nil, err
 		}
 		coverUrl, err := minio.GetFileTemporaryURL(minio.CoverBucketName, r.CoverUrl)
 		if err != nil {
@@ -83,7 +83,7 @@ func (v *VideoServiceImpl) Feed(ctx context.Context, req *video.FeedRequest) (re
 			resp = &video.FeedResponse{
 				StatusCode: errno.ServiceErrCode,
 			}
-			return
+			return nil, err
 		}
 		avatarUrl, err := minio.GetFileTemporaryURL(minio.AvatarBucketName, author.Avatar)
 		if err != nil {
@@ -91,7 +91,7 @@ func (v *VideoServiceImpl) Feed(ctx context.Context, req *video.FeedRequest) (re
 			resp = &video.FeedResponse{
 				StatusCode: errno.ServiceErrCode,
 			}
-			return
+			return nil, err
 		}
 		backgroundUrl, err := minio.GetFileTemporaryURL(minio.BackgroundImageBucketName, author.BackgroundImage)
 		if err != nil {
@@ -99,7 +99,7 @@ func (v *VideoServiceImpl) Feed(ctx context.Context, req *video.FeedRequest) (re
 			resp = &video.FeedResponse{
 				StatusCode: errno.ServiceErrCode,
 			}
-			return
+			return nil, err
 		}
 
 		videoList = append(videoList, &video.Video{
@@ -147,7 +147,7 @@ func (v *VideoServiceImpl) PublishAction(ctx context.Context, req *video.Publish
 		resp = &video.PublishActionResponse{
 			StatusCode: errno.ServiceErrCode,
 		}
-		return
+		return nil, err
 	}
 	userID := claims.Id
 
@@ -157,7 +157,7 @@ func (v *VideoServiceImpl) PublishAction(ctx context.Context, req *video.Publish
 			StatusCode: errno.ServiceErrCode,
 			StatusMsg:  "标题不能为空且不能超过32个字符",
 		}
-		return
+		return nil, err
 	}
 
 	// 限制文件上传大小
@@ -169,7 +169,7 @@ func (v *VideoServiceImpl) PublishAction(ctx context.Context, req *video.Publish
 			StatusCode: errno.ServiceErrCode,
 			StatusMsg:  fmt.Sprintf("该视频文件大于%dMB，上传受限", maxSize),
 		}
-		return
+		return nil, err
 	}
 
 	createTimestamp := time.Now().UnixMilli()
@@ -188,7 +188,7 @@ func (v *VideoServiceImpl) PublishAction(ctx context.Context, req *video.Publish
 		resp = &video.PublishActionResponse{
 			StatusCode: errno.ServiceErrCode,
 		}
-		return
+		return nil, err
 	}
 
 	go func() {
@@ -219,7 +219,7 @@ func (v *VideoServiceImpl) PublishList(ctx context.Context, req *video.PublishLi
 		resp = &video.PublishListResponse{
 			StatusCode: errno.ServiceErrCode,
 		}
-		return
+		return nil, err
 	}
 	videos := make([]*video.Video, 0)
 	for _, r := range results {
@@ -229,7 +229,7 @@ func (v *VideoServiceImpl) PublishList(ctx context.Context, req *video.PublishLi
 			resp = &video.PublishListResponse{
 				StatusCode: errno.ServiceErrCode,
 			}
-			return
+			return nil, err
 		}
 		follow, err := mysql.GetRelationByUserIDs(ctx, userID, int64(author.ID))
 		if err != nil {
@@ -237,7 +237,7 @@ func (v *VideoServiceImpl) PublishList(ctx context.Context, req *video.PublishLi
 			resp = &video.PublishListResponse{
 				StatusCode: errno.ServiceErrCode,
 			}
-			return
+			return nil, err
 		}
 		favorite, err := mysql.GetFavoriteVideoRelationByUserVideoID(ctx, userID, int64(r.ID))
 		if err != nil {
@@ -245,7 +245,7 @@ func (v *VideoServiceImpl) PublishList(ctx context.Context, req *video.PublishLi
 			resp = &video.PublishListResponse{
 				StatusCode: errno.ServiceErrCode,
 			}
-			return
+			return nil, err
 		}
 		playUrl, err := minio.GetFileTemporaryURL(minio.VideoBucketName, r.PlayUrl)
 		if err != nil {
@@ -253,7 +253,7 @@ func (v *VideoServiceImpl) PublishList(ctx context.Context, req *video.PublishLi
 			resp = &video.PublishListResponse{
 				StatusCode: errno.SuccessCode,
 			}
-			return
+			return nil, err
 		}
 		coverUrl, err := minio.GetFileTemporaryURL(minio.CoverBucketName, r.CoverUrl)
 		if err != nil {
@@ -261,7 +261,7 @@ func (v *VideoServiceImpl) PublishList(ctx context.Context, req *video.PublishLi
 			resp = &video.PublishListResponse{
 				StatusCode: errno.ServiceErrCode,
 			}
-			return
+			return nil, err
 		}
 		avatarUrl, err := minio.GetFileTemporaryURL(minio.AvatarBucketName, author.Avatar)
 		if err != nil {
@@ -269,7 +269,7 @@ func (v *VideoServiceImpl) PublishList(ctx context.Context, req *video.PublishLi
 			resp = &video.PublishListResponse{
 				StatusCode: errno.ServiceErrCode,
 			}
-			return
+			return nil, err
 		}
 		backgroundUrl, err := minio.GetFileTemporaryURL(minio.BackgroundImageBucketName, author.BackgroundImage)
 		if err != nil {
@@ -277,7 +277,7 @@ func (v *VideoServiceImpl) PublishList(ctx context.Context, req *video.PublishLi
 			resp = &video.PublishListResponse{
 				StatusCode: errno.ServiceErrCode,
 			}
-			return
+			return nil, err
 		}
 
 		videos = append(videos, &video.Video{

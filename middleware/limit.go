@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-// 限流中间件，使用令牌桶的方式处理请求。Note: auth中间件需在其前面
+// TokenLimitMiddleware 限流中间件，使用令牌桶的方式处理请求。Note: auth中间件需在其前面
 func TokenLimitMiddleware() app.HandlerFunc {
 	logger := zap.InitLogger()
 

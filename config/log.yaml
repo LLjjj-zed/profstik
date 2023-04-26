@@ -1,2 +1,2 @@
-log: log/info.log
-errorf:log/errorf.log
+log:    log/info.log
+errorf: log/errorf.log

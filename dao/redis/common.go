@@ -4,13 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/132982317/profstik/dao/mysql"
-	"github.com/132982317/profstik/pkg/utils/gocron"
-	"github.com/132982317/profstik/pkg/utils/zap"
-	"github.com/go-redsync/redsync/v4"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/132982317/profstik/dao/mysql"
+	"github.com/132982317/profstik/pkg/utils/gocron"
+	"github.com/132982317/profstik/pkg/utils/zap"
+
+	"github.com/go-redsync/redsync/v4"
 )
 
 const frequency = 10

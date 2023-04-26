@@ -8,6 +8,25 @@ mysql:
     password:     123456
     charset:      utf8mb4
 
+  replica1: # 从数据库
+    driverName: mysql
+    host: 127.0.0.1
+    port: 3310
+    database: db_tiktok
+    username: tiktokDB
+    password: tiktokDB
+    charset: utf8mb4
+  replica2: # 从数据库
+    driverName: mysql
+    host: 127.0.0.1
+    port: 3308
+    database: db_tiktok
+    username: tiktokDB
+    password: tiktokDB
+    charset: utf8mb4
+
+
+
 config:
   MaxOpenCons:     1000
   MaxIdleCons:     20
