@@ -1,0 +1,87 @@
+version: '3'
+
+x-minio-common: &minio-common
+  image: quay.io/minio/minio:v1.0.0
+  command: server --console-address ":9001" http://minio{1...4}/data{1...2}
+  expose:
+    - "9000"
+  environment:
+    MINIO_ROOT_USER: tiktokMinio
+    MINIO_ROOT_PASSWORD: tiktokMinio
+  healthcheck:
+    test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+    interval: 30s
+    timeout: 20s
+    retries: 3
+
+services:
+  Etcd:
+    image: 'bitnami/etcd:v1.0.0'
+    environment:
+      - ALLOW_NONE_AUTHENTICATION=yes
+    ports:
+      - 2379:2380
+
+  dousheng-api:
+    image: '1.12.68.184:5000/dousheng-api-hertz:v1.0.0'
+    volumes:
+      - type: bind
+        source: ./config
+        target: /app/config
+    ports:
+      - 8089:8089
+      - 8081:8081
+      - 8082:8082
+      - 8083:8083
+      - 8084:8084
+      - 8085:8085
+      - 8086:8086
+
+  dousheng-rpc-commentsrv:
+    image: '1.12.68.184:5000/dousheng-rpc-commentsrv:v1.0.0'
+    network_mode: 'service:dousheng-api'
+    volumes:
+      - type: bind
+        source: ./config
+        target: /app/config
+
+  dousheng-rpc-messagesrv:
+    image: '1.12.68.184:5000/dousheng-rpc-messagesrv:v1.0.0'
+    network_mode: 'service:dousheng-api'
+    volumes:
+      - type: bind
+        source: ./config
+        target: /app/config
+
+  dousheng-rpc-relationsrv:
+    image: '1.12.68.184:5000/dousheng-rpc-relationsrv:v1.0.0'
+    network_mode: 'service:dousheng-api'
+    volumes:
+      - type: bind
+        source: ./config
+        target: /app/config
+
+  dousheng-rpc-videosrv:
+    image: '1.12.68.184:5000/dousheng-rpc-videosrv:v1.0.0'
+    network_mode: 'service:dousheng-api'
+    volumes:
+      - type: bind
+        source: ./config
+        target: /app/config
+
+  dousheng-rpc-usersrv:
+    image: '1.12.68.184:5000/dousheng-rpc-usersrv:v1.0.0'
+    network_mode: 'service:dousheng-api'
+    volumes:
+      - type: bind
+        source: ./config
+        target: /app/config
+
+  dousheng-rpc-favoritesrv:
+    image: '1.12.68.184:5000/dousheng-rpc-favoritesrv:v1.0.0'
+
+    network_mode: 'service:dousheng-api'
+    volumes:
+      - type: bind
+        source: ./config
+        target: /app/config

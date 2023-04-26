@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"github.com/132982317/profstik/cmd/favorite/service"
 	"github.com/132982317/profstik/kitex_gen/favorite/favoriteservice"
+	"github.com/132982317/profstik/middleware"
 	"github.com/132982317/profstik/pkg/utils/viper"
 	"github.com/132982317/profstik/pkg/utils/zap"
-	"github.com/cloudwego/kitex-examples/bizdemo/easy_note/pkg/bound"
-	"github.com/cloudwego/kitex-examples/bizdemo/easy_note/pkg/middleware"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
 	etcd "github.com/kitex-contrib/registry-etcd"
@@ -39,11 +38,10 @@ func main() {
 		server.WithMiddleware(middleware.ServerMiddleware),
 		server.WithServiceAddr(addr), // address
 		//server.WithLimit(&limit.Option{MaxConnections: 1000, MaxQPS: 100}), // limit
-		server.WithMuxTransport(),                           // Multiplex
-		server.WithSuite(trace.NewDefaultServerSuite()),     // tracer
-		server.WithBoundHandler(bound.NewCpuLimitHandler()), // BoundHandler
-		server.WithRegistry(r),                              // registry
-		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: serviceName}),
+		server.WithMuxTransport(),                       // Multiplex
+		server.WithSuite(trace.NewDefaultServerSuite()), // tracer
+		//server.WithBoundHandler(bound.NewCpuLimitHandler()), // BoundHandler
+		server.WithRegistry(r), // registry
 	)
 	if err := svr.Run(); err != nil {
 		logger.Fatalf("%v stopped with error: %v", serviceName, err.Error())
